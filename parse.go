@@ -44,6 +44,8 @@ type Entry struct {
 	Body string
 
 	ExtendedBody string
+	
+	Image string
 }
 
 // NewMT creates MT.
@@ -163,6 +165,9 @@ func Parse(r io.Reader) ([]*Entry, error) {
 			break
 		case "CATEGORY":
 			m.Category = append(m.Category, value)
+			break
+		case "IMAGE":
+			m.Image = value
 			break
 		}
 	}
