@@ -39,6 +39,8 @@ type Entry struct {
 
 	Category []string
 
+	Image string
+
 	Body string
 
 	ExtendedBody string
@@ -174,6 +176,9 @@ func Parse(r io.Reader) ([]*Entry, error) {
 			break
 		case "CATEGORY":
 			m.Category = append(m.Category, value)
+			break
+		case "IMAGE":
+			m.Image = value
 			break
 		}
 	}

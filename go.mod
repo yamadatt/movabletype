@@ -1,3 +1,3 @@
-module github.com/catatsuy/movabletype
+module github.com/yamadatt/movabletype
 
-go 1.16
+go 1.15

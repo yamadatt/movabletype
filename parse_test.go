@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	. "github.com/catatsuy/movabletype"
+	. "github.com/yamadatt/movabletype"
 )
 
 func TestParse(t *testing.T) {
