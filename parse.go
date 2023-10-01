@@ -116,6 +116,17 @@ func Parse(r io.Reader) ([]*Entry, error) {
 					m.Excerpt += line + "\n"
 				}
 				break
+			case "KEYWORDS:":
+				for scanner.Scan() {
+					line := scanner.Text()
+
+					if line == "-----" {
+						break
+					}
+
+					m.Excerpt += line + "\n"
+				}
+				break
 			}
 
 			continue
