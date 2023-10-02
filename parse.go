@@ -49,7 +49,7 @@ type Entry struct {
 
 	Keywords string
 
-	Comment string
+	Comment []string
 }
 
 // NewMT creates MT.
@@ -124,8 +124,6 @@ func Parse(r io.Reader) ([]*Entry, error) {
 				for scanner.Scan() {
 					line := scanner.Text()
 
-					fmt.Println(line)
-
 					if line == "-----" {
 						break
 					}
@@ -136,7 +134,7 @@ func Parse(r io.Reader) ([]*Entry, error) {
 			case "COMMENT:":
 				for scanner.Scan() {
 					line := scanner.Text()
-					fmt.Println(line)
+					// fmt.Println(line)
 					if line == "-----" {
 						break
 					}
@@ -207,6 +205,9 @@ func Parse(r io.Reader) ([]*Entry, error) {
 			break
 		case "IMAGE":
 			m.Image = value
+			break
+		case "COMMENT":
+			m.Comment = append(m.Comment, value)
 			break
 		}
 	}

@@ -16,7 +16,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/catatsuy/movabletype"
+	"github.com/yamadatt/movabletype"
 )
 
 func main() {
