@@ -148,7 +148,7 @@ func Parse(r io.Reader) ([]*Entry, error) {
 		}
 
 		key, value := ss[0], ss[1]
-
+		fmt.Println(key, value)
 		switch key {
 		case "AUTHOR":
 			m.Author = value
