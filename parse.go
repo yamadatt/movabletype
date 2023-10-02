@@ -136,7 +136,7 @@ func Parse(r io.Reader) ([]*Entry, error) {
 			case "COMMENT:":
 				for scanner.Scan() {
 					line := scanner.Text()
-
+					fmt.Println(line)
 					if line == "-----" {
 						break
 					}

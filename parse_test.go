@@ -58,6 +58,11 @@ EXCERPT:
 KEYWORDS:
 keywords
 -----
+COMMENT:
+AUTHOR: 紗菜
+EMAIL: 
+-----
+
 --------
 `)
 
@@ -91,6 +96,7 @@ keywords
 			ExtendedBody:  "<p>extended body body body</p>\n",
 			Excerpt:       "ここに概要が表示されます。\n",
 			Keywords:      "keywords\n",
+			Comment:       "AUTHOR: 紗菜\nEMAIL: \n",
 		},
 	}
 
