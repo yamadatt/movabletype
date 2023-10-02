@@ -124,12 +124,15 @@ func Parse(r io.Reader) ([]*Entry, error) {
 				for scanner.Scan() {
 					line := scanner.Text()
 
+					fmt.Println(line)
+
 					if line == "-----" {
 						break
 					}
 
 					m.Keywords += line + "\n"
 				}
+				break
 			case "COMMENT:":
 				for scanner.Scan() {
 					line := scanner.Text()

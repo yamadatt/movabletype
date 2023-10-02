@@ -55,6 +55,9 @@ EXTENDED BODY:
 EXCERPT:
 ここに概要が表示されます。
 -----
+KEYWORDS:
+keywords
+-----
 --------
 `)
 
@@ -87,6 +90,7 @@ EXCERPT:
 			Body:          "<p>bodybodybody</p>\n",
 			ExtendedBody:  "<p>extended body body body</p>\n",
 			Excerpt:       "ここに概要が表示されます。\n",
+			Keywords:      "keywords\n",
 		},
 	}
 
