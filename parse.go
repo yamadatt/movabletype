@@ -49,7 +49,7 @@ type Entry struct {
 
 	Keywords string
 
-	Comment []string
+	Comment string
 }
 
 // NewMT creates MT.
