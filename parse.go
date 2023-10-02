@@ -148,67 +148,65 @@ func Parse(r io.Reader) ([]*Entry, error) {
 		}
 
 		key, value := ss[0], ss[1]
-		fmt.Println(key, value)
-		switch key {
-		case "AUTHOR":
-			m.Author = value
-			break
-		case "TITLE":
-			m.Title = value
-			break
-		case "BASENAME":
-			m.Basename = value
-			break
-		case "STATUS":
-			if value == "Draft" || value == "Publish" || value == "Future" {
-				m.Status = value
-			} else {
-				return nil, fmt.Errorf("STATUS column is allowed only Draft or Publish or Future. Got %s", value)
+		if value != "COMMENT:" {
+			switch key {
+			case "AUTHOR":
+				m.Author = value
+				break
+			case "TITLE":
+				m.Title = value
+				break
+			case "BASENAME":
+				m.Basename = value
+				break
+			case "STATUS":
+				if value == "Draft" || value == "Publish" || value == "Future" {
+					m.Status = value
+				} else {
+					return nil, fmt.Errorf("STATUS column is allowed only Draft or Publish or Future. Got %s", value)
+				}
+				break
+			case "ALLOW COMMENTS":
+				m.AllowComments, err = strconv.Atoi(value)
+				if err != nil {
+					return nil, fmt.Errorf("ALLOW COMMENTS column is allowed only 0 or 1: %w", err)
+				}
+				if m.AllowComments != 0 && m.AllowComments != 1 {
+					return nil, fmt.Errorf("ALLOW COMMENTS column is allowed only 0 or 1. Got %d", m.AllowComments)
+				}
+				break
+			case "ALLOW PINGS":
+				m.AllowPings, err = strconv.Atoi(value)
+				if err != nil {
+					return nil, fmt.Errorf("ALLOW PINGS column is allowed only 0 or 1: %w", err)
+				}
+				if m.AllowComments != 0 && m.AllowComments != 1 {
+					return nil, fmt.Errorf("ALLOW PINGS column is allowed only 0 or 1. Got %d", m.AllowPings)
+				}
+				break
+			case "CONVERT BREAKS":
+				m.ConvertBreaks = value
+				break
+			case "DATE":
+				if strings.HasSuffix(value, "AM") || strings.HasSuffix(value, "PM") {
+					m.Date, err = time.Parse("01/02/2006 03:04:05 PM", value)
+				} else {
+					m.Date, err = time.Parse("01/02/2006 15:04:05", value)
+				}
+				if err != nil {
+					return nil, fmt.Errorf("Parsing error on DATE column: %w", err)
+				}
+				break
+			case "PRIMARY CATEGORY":
+				m.PrimaryCategory = value
+				break
+			case "CATEGORY":
+				m.Category = append(m.Category, value)
+				break
+			case "IMAGE":
+				m.Image = value
+				break
 			}
-			break
-		case "ALLOW COMMENTS":
-			m.AllowComments, err = strconv.Atoi(value)
-			if err != nil {
-				return nil, fmt.Errorf("ALLOW COMMENTS column is allowed only 0 or 1: %w", err)
-			}
-			if m.AllowComments != 0 && m.AllowComments != 1 {
-				return nil, fmt.Errorf("ALLOW COMMENTS column is allowed only 0 or 1. Got %d", m.AllowComments)
-			}
-			break
-		case "ALLOW PINGS":
-			m.AllowPings, err = strconv.Atoi(value)
-			if err != nil {
-				return nil, fmt.Errorf("ALLOW PINGS column is allowed only 0 or 1: %w", err)
-			}
-			if m.AllowComments != 0 && m.AllowComments != 1 {
-				return nil, fmt.Errorf("ALLOW PINGS column is allowed only 0 or 1. Got %d", m.AllowPings)
-			}
-			break
-		case "CONVERT BREAKS":
-			m.ConvertBreaks = value
-			break
-		case "DATE":
-			if strings.HasSuffix(value, "AM") || strings.HasSuffix(value, "PM") {
-				m.Date, err = time.Parse("01/02/2006 03:04:05 PM", value)
-			} else {
-				m.Date, err = time.Parse("01/02/2006 15:04:05", value)
-			}
-			if err != nil {
-				return nil, fmt.Errorf("Parsing error on DATE column: %w", err)
-			}
-			break
-		case "PRIMARY CATEGORY":
-			m.PrimaryCategory = value
-			break
-		case "CATEGORY":
-			m.Category = append(m.Category, value)
-			break
-		case "IMAGE":
-			m.Image = value
-			break
-		case "COMMENT":
-			m.Comment = append(m.Comment, value)
-			break
 		}
 	}
 
