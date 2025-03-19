@@ -1,3 +1,5 @@
+// Package movabletype provides parsing functionality for "The Movable Type Import / Export Format".
+// It can parse Movable Type's text-based export format into Go structures.
 package movabletype
 
 import (
@@ -11,48 +13,42 @@ import (
 
 // Default
 const (
-	// If it is not inialized, AllowComments is -1
+	// DefaultAllowComments is the default value for the AllowComments field (-1).
 	DefaultAllowComments = -1
 
-	// If it is not inialized, AllowPings is -1
+	// DefaultAllowPings is the default value for the AllowPings field (-1).
 	DefaultAllowPings = -1
 )
 
-// Movable Type Import Format
+// Entry represents a single blog post entry in the Movable Type Import Format.
+// Each entry contains metadata and content fields as defined in the MT format specification.
 type Entry struct {
-	Author   string
-	Title    string
-	Basename string
-	Status   string
+	Author   string // Author name
+	Title    string // Entry title
+	Basename string // URL basename
+	Status   string // Publication status: "Draft", "Publish", or "Future"
 
-	// 0 or 1. If it is not inialized DefaultAllowComments.
+	// AllowComments indicates whether comments are allowed for this entry (0 or 1).
+	// If not initialized, it defaults to DefaultAllowComments.
 	AllowComments int
 
-	// 0 or 1. If it is not inialized DefaultAllowPings
+	// AllowPings indicates whether trackbacks/pingbacks are allowed for this entry (0 or 1).
+	// If not initialized, it defaults to DefaultAllowPings.
 	AllowPings int
 
-	ConvertBreaks string
-
-	Date time.Time
-
-	PrimaryCategory string
-
-	Category []string
-
-	Image string
-
-	Body string
-
-	ExtendedBody string
-
-	Excerpt string
-
-	Keywords string
-
-	Comment string
+	ConvertBreaks   string    // Convert line breaks setting
+	Date            time.Time // Publication date and time
+	PrimaryCategory string    // Primary category name
+	Category        []string  // List of categories
+	Image           string    // Featured image path
+	Body            string    // Main content
+	ExtendedBody    string    // Extended/additional content
+	Excerpt         string    // Entry excerpt/summary
+	Keywords        string    // SEO keywords
+	Comment         string    // Comments on the entry
 }
 
-// NewMT creates MT.
+// NewEntry creates a new Entry with default values.
 func NewEntry() *Entry {
 	return &Entry{
 		AllowComments: DefaultAllowComments,
@@ -60,7 +56,18 @@ func NewEntry() *Entry {
 	}
 }
 
-// Parse creates MT struct from io.Reader
+// Parse reads Movable Type formatted data from an io.Reader and returns a slice of Entry structures.
+// It returns an error if the input is malformed or if required fields have invalid values.
+//
+// Example usage:
+//
+//	entries, err := movabletype.Parse(os.Stdin)
+//	if err != nil {
+//	    log.Fatal(err)
+//	}
+//	for _, entry := range entries {
+//	    fmt.Println(entry.Title)
+//	}
 func Parse(r io.Reader) ([]*Entry, error) {
 	mts := []*Entry{}
 
