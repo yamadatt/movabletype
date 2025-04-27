@@ -1,5 +1,5 @@
-// Package movabletype provides parsing functionality for "The Movable Type Import / Export Format".
-// It can parse Movable Type's text-based export format into Go structures.
+// movabletypeパッケージは「Movable Type インポート／エクスポート形式」のパース機能を提供します。
+// Movable Typeのテキストベースのエクスポート形式をGoの構造体に変換できます。
 package movabletype
 
 import (
@@ -11,44 +11,42 @@ import (
 	"time"
 )
 
-// Default
+// デフォルト値
 const (
-	// DefaultAllowComments is the default value for the AllowComments field (-1).
+	// AllowCommentsフィールドのデフォルト値（-1）
 	DefaultAllowComments = -1
 
-	// DefaultAllowPings is the default value for the AllowPings field (-1).
+	// AllowPingsフィールドのデフォルト値（-1）
 	DefaultAllowPings = -1
 )
 
-// Entry represents a single blog post entry in the Movable Type Import Format.
-// Each entry contains metadata and content fields as defined in the MT format specification.
+// EntryはMovable Typeインポート形式の1件の記事を表します。
+// 各記事はMT仕様に基づくメタデータや本文などのフィールドを持ちます。
 type Entry struct {
-	Author   string // Author name
-	Title    string // Entry title
-	Basename string // URL basename
-	Status   string // Publication status: "Draft", "Publish", or "Future"
+	Author   string // 著者名
+	Title    string // 記事タイトル
+	Basename string // URL用のベース名
+	Status   string // 公開状態: "Draft", "Publish", "Future"
 
-	// AllowComments indicates whether comments are allowed for this entry (0 or 1).
-	// If not initialized, it defaults to DefaultAllowComments.
+	// AllowCommentsはコメント許可設定（0または1）。未設定時はDefaultAllowComments。
 	AllowComments int
 
-	// AllowPings indicates whether trackbacks/pingbacks are allowed for this entry (0 or 1).
-	// If not initialized, it defaults to DefaultAllowPings.
+	// AllowPingsはトラックバック/ピンバック許可設定（0または1）。未設定時はDefaultAllowPings。
 	AllowPings int
 
-	ConvertBreaks   string    // Convert line breaks setting
-	Date            time.Time // Publication date and time
-	PrimaryCategory string    // Primary category name
-	Category        []string  // List of categories
-	Image           string    // Featured image path
-	Body            string    // Main content
-	ExtendedBody    string    // Extended/additional content
-	Excerpt         string    // Entry excerpt/summary
-	Keywords        string    // SEO keywords
-	Comment         string    // Comments on the entry
+	Converts        string    // 改行変換設定
+	Date            time.Time // 公開日時
+	PrimaryCategory string    // メインカテゴリ名
+	Category        []string  // カテゴリ一覧
+	Image           string    // アイキャッチ画像パス
+	Body            string    // 本文
+	ExtendedBody    string    // 追記本文
+	Excerpt         string    // 抜粋・概要
+	Keywords        string    // SEOキーワード
+	Comment         string    // 記事へのコメント
 }
 
-// NewEntry creates a new Entry with default values.
+// 新しいEntryをデフォルト値で生成します。
 func NewEntry() *Entry {
 	return &Entry{
 		AllowComments: DefaultAllowComments,
@@ -56,10 +54,10 @@ func NewEntry() *Entry {
 	}
 }
 
-// Parse reads Movable Type formatted data from an io.Reader and returns a slice of Entry structures.
-// It returns an error if the input is malformed or if required fields have invalid values.
+// ParseはMovable Type形式のデータをio.Readerから読み込み、Entry構造体のスライスとして返します。
+// 入力が不正な場合や必須フィールドに不正値がある場合はエラーを返します。
 //
-// Example usage:
+// 使用例:
 //
 //	entries, err := movabletype.Parse(os.Stdin)
 //	if err != nil {
@@ -70,152 +68,106 @@ func NewEntry() *Entry {
 //	}
 func Parse(r io.Reader) ([]*Entry, error) {
 	mts := []*Entry{}
-
 	scanner := bufio.NewScanner(r)
-
 	var err error
-
 	m := NewEntry()
 
 	for scanner.Scan() {
-		ss := strings.Split(scanner.Text(), ": ")
+		line := scanner.Text()
 
-		if len(ss) <= 1 {
-			value := ss[0]
-
-			if value == "--------" {
-				mts = append(mts, m)
-				m = NewEntry()
-				continue
-			}
-
-			if value == "-----" {
-				continue
-			}
-
-			switch value {
-			case "BODY:":
-				for scanner.Scan() {
-					line := scanner.Text()
-
-					if line == "-----" {
-						break
-					}
-
-					m.Body += line + "\n"
-				}
-				break
-			case "EXTENDED BODY:":
-				for scanner.Scan() {
-					line := scanner.Text()
-
-					if line == "-----" {
-						break
-					}
-
-					m.ExtendedBody += line + "\n"
-				}
-				break
-			case "EXCERPT:":
-				for scanner.Scan() {
-					line := scanner.Text()
-
-					if line == "-----" {
-						break
-					}
-
-					m.Excerpt += line + "\n"
-				}
-				break
-			case "KEYWORDS:":
-				for scanner.Scan() {
-					line := scanner.Text()
-
-					if line == "-----" {
-						break
-					}
-
-					m.Keywords += line + "\n"
-				}
-				break
-			case "COMMENT:":
-				for scanner.Scan() {
-					line := scanner.Text()
-					// fmt.Println(line)
-					if line == "-----" {
-						break
-					}
-
-					m.Comment += line + "\n"
-				}
-				break
-			}
-
+		// 区切り線の処理
+		if line == "-----" {
+			continue
+		}
+		if line == "--------" {
+			mts = append(mts, m)
+			m = NewEntry()
 			continue
 		}
 
-		key, value := ss[0], ss[1]
-		if value != "COMMENT:" {
-			switch key {
-			case "AUTHOR":
-				m.Author = value
-				break
-			case "TITLE":
-				m.Title = value
-				break
-			case "BASENAME":
-				m.Basename = value
-				break
-			case "STATUS":
-				if value == "Draft" || value == "Publish" || value == "Future" {
-					m.Status = value
-				} else {
-					return nil, fmt.Errorf("STATUS column is allowed only Draft or Publish or Future. Got %s", value)
+		// 複数行フィールドの処理
+		if strings.HasSuffix(line, ":") {
+			field := line[:len(line)-1] // ":"を除去
+			content := ""
+			for scanner.Scan() {
+				l := scanner.Text()
+				if l == "-----" {
+					break
 				}
-				break
-			case "ALLOW COMMENTS":
-				m.AllowComments, err = strconv.Atoi(value)
-				if err != nil {
-					return nil, fmt.Errorf("ALLOW COMMENTS column is allowed only 0 or 1: %w", err)
-				}
-				if m.AllowComments != 0 && m.AllowComments != 1 {
-					return nil, fmt.Errorf("ALLOW COMMENTS column is allowed only 0 or 1. Got %d", m.AllowComments)
-				}
-				break
-			case "ALLOW PINGS":
-				m.AllowPings, err = strconv.Atoi(value)
-				if err != nil {
-					return nil, fmt.Errorf("ALLOW PINGS column is allowed only 0 or 1: %w", err)
-				}
-				if m.AllowComments != 0 && m.AllowComments != 1 {
-					return nil, fmt.Errorf("ALLOW PINGS column is allowed only 0 or 1. Got %d", m.AllowPings)
-				}
-				break
-			case "CONVERT BREAKS":
-				m.ConvertBreaks = value
-				break
-			case "DATE":
-				if strings.HasSuffix(value, "AM") || strings.HasSuffix(value, "PM") {
-					m.Date, err = time.Parse("01/02/2006 03:04:05 PM", value)
-				} else {
-					m.Date, err = time.Parse("01/02/2006 15:04:05", value)
-				}
-				if err != nil {
-					return nil, fmt.Errorf("Parsing error on DATE column: %w", err)
-				}
-				break
-			case "PRIMARY CATEGORY":
-				m.PrimaryCategory = value
-				break
-			case "CATEGORY":
-				m.Category = append(m.Category, value)
-				break
-			case "IMAGE":
-				m.Image = value
-				break
+				content += l + "\n"
 			}
+			switch field {
+			case "BODY":
+				m.Body = content
+			case "EXTENDED BODY":
+				m.ExtendedBody = content
+			case "EXCERPT":
+				m.Excerpt = content
+			case "KEYWORDS":
+				m.Keywords = content
+			case "COMMENT":
+				m.Comment = content
+			}
+			continue
+		}
+
+		// 1行フィールドの処理
+		ss := strings.SplitN(line, ": ", 2)
+		if len(ss) != 2 {
+			continue
+		}
+		key, value := ss[0], ss[1]
+		switch key {
+		case "AUTHOR":
+			m.Author = value
+		case "TITLE":
+			m.Title = value
+		case "BASENAME":
+			m.Basename = value
+		case "STATUS":
+			if value == "Draft" || value == "Publish" || value == "Future" {
+				m.Status = value
+			} else {
+				return nil, fmt.Errorf("STATUS列はDraft, Publish, Futureのみ許可されています。取得値: %s", value)
+			}
+		case "ALLOW COMMENTS":
+			m.AllowComments, err = strconv.Atoi(value)
+			if err != nil {
+				return nil, fmt.Errorf("ALLOW COMMENTS列は0または1のみ許可: %w", err)
+			}
+			if m.AllowComments != 0 && m.AllowComments != 1 {
+				return nil, fmt.Errorf("ALLOW COMMENTS列は0または1のみ許可。取得値: %d", m.AllowComments)
+			}
+		case "ALLOW PINGS":
+			m.AllowPings, err = strconv.Atoi(value)
+			if err != nil {
+				return nil, fmt.Errorf("ALLOW PINGS列は0または1のみ許可: %w", err)
+			}
+			if m.AllowPings != 0 && m.AllowPings != 1 {
+				return nil, fmt.Errorf("ALLOW PINGS列は0または1のみ許可。取得値: %d", m.AllowPings)
+			}
+		case "CONVERT S":
+			m.Converts = value
+		case "DATE":
+			if strings.HasSuffix(value, "AM") || strings.HasSuffix(value, "PM") {
+				m.Date, err = time.Parse("01/02/2006 03:04:05 PM", value)
+			} else {
+				m.Date, err = time.Parse("01/02/2006 15:04:05", value)
+			}
+			if err != nil {
+				return nil, fmt.Errorf("DATE列のパースエラー: %w", err)
+			}
+		case "PRIMARY CATEGORY":
+			m.PrimaryCategory = value
+		case "CATEGORY":
+			m.Category = append(m.Category, value)
+		case "IMAGE":
+			m.Image = value
 		}
 	}
 
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
 	return mts, nil
 }
